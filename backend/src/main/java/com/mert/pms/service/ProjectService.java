@@ -26,7 +26,9 @@ public class ProjectService {
     public Project findById(Long id) {
         return projectRepository.findById(id).get();
     }
-
+    public Set<Project> findByEmployeeId(Long id) {
+        return projectRepository.findProjectsByEmployeeId(id);
+    }
     public void saveProject(Project project) {
         projectRepository.save(project);
     }

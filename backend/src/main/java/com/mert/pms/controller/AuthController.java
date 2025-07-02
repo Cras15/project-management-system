@@ -1,6 +1,7 @@
 package com.mert.pms.controller;
 
 import com.mert.pms.dto.AuthRequest;
+import com.mert.pms.dto.AuthResponse;
 import com.mert.pms.dto.EmployeeDTO;
 import com.mert.pms.model.Employee;
 import com.mert.pms.security.JwtTokenProvider;
@@ -45,8 +46,15 @@ public class AuthController {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtTokenProvider.generateToken(authentication);
-        employeeService.loginEmployee(authRequest.getEmail());
-        return ResponseEntity.ok(token);
+        Employee employee = employeeService.loginEmployee(authRequest.getEmail());
+        AuthResponse authResponse = new AuthResponse(
+                token,
+                employee.getId(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getEmail(),
+                employee.getRole());
+        return ResponseEntity.ok(authResponse);
     }
 
 

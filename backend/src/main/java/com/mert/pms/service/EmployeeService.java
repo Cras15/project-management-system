@@ -53,10 +53,11 @@ public class EmployeeService {
     public List<Employee> findAllUsers() {
         return employeeRepository.findAll();
     }
-    public void loginEmployee(String email)
+    public Employee loginEmployee(String email)
     {
         Employee employee = employeeRepository.findByEmail(email);
         employee.setLastLoginTime(LocalDateTime.now());
         employeeRepository.save(employee);
+        return employee;
     }
 }

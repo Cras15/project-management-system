@@ -19,7 +19,7 @@ const statusText = {
 
 
 const HomePage = () => {
-    const token = useAuthStore((state) => state.token);
+    const {token,user} = useAuthStore((state) => state);
 
     const fetchProjects = async () => {
         const { data } = await axios.get('http://localhost:8080/project/get', {
@@ -79,7 +79,7 @@ const HomePage = () => {
                             <th style={{ width: '40%' }}>Proje Adı</th>
                             <th>Proje Durumu</th>
                             <th>Çalışan Sayısı</th>
-                            <th>İşlemler</th>
+                            {user?.role === 'PROJECT_MANAGER' && <th>İşlemler</th>}
                         </tr>
                     </thead>
                     <tbody>
@@ -103,12 +103,14 @@ const HomePage = () => {
                                         <Typography level="body-sm">{row.assignedEmployees?.length || 0}</Typography>
                                     </Box>
                                 </td>
-                                <td>
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                        <Button variant="plain" color="primary" size="sm" component={Link} to={`/project/${row.id}`}>Düzenle</Button>
-                                        <Button variant="plain" color="danger" size="sm" onClick={() => handleDelete(row.id)}>Sil</Button>
-                                    </Box>
-                                </td>
+                                {user?.role === 'PROJECT_MANAGER' && (
+                                    <td>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Button variant="plain" color="primary" size="sm" component={Link} to={`/project/${row.id}`}>Düzenle</Button>
+                                            <Button variant="plain" color="danger" size="sm" onClick={() => handleDelete(row.id)}>Sil</Button>
+                                        </Box>
+                                    </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>

@@ -36,10 +36,15 @@ public class ProjectController {
         return ResponseEntity.ok().build();
     }
 
-    @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
     @GetMapping("/get")
-    public Iterable<Project> findAll() {
-        return projectService.findAll();
+    public ResponseEntity<?> findAll(Principal principal) {
+        Employee employee = employeeService.findByEmail(principal.getName());
+        Set<Project> projects=projectService.findByEmployeeId(employee.getId());
+        if (employee.getRole().equals(Role.PROJECT_MANAGER)) {
+            return ResponseEntity.ok(projectService.findAll());
+        } else if (!projects.isEmpty()) {
+            return ResponseEntity.ok(projects);
+        } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 

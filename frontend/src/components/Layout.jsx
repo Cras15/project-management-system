@@ -19,7 +19,7 @@ const Layout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
     const { pathname } = location;
-    const logout = useAuthStore((state) => state.logout);
+    const { logout, user } = useAuthStore((state) => state);
     const navigate = useNavigate();
 
     const Logout = () => {
@@ -90,12 +90,14 @@ const Layout = () => {
                                     Projeler
                                 </ListItemButton>
                             </ListItem>
-                            <ListItem>
-                                <ListItemButton selected={pathname === '/employees'} component={Link} to="/employees">
-                                    <ListItemDecorator><PeopleRounded /></ListItemDecorator>
-                                    Çalışanlar
-                                </ListItemButton>
-                            </ListItem>
+                            {user?.role === 'PROJECT_MANAGER' && (
+                                <ListItem>
+                                    <ListItemButton selected={pathname === '/employees'} component={Link} to="/employees">
+                                        <ListItemDecorator><PeopleRounded /></ListItemDecorator>
+                                        Çalışanlar
+                                    </ListItemButton>
+                                </ListItem>
+                            )}
                         </List>
                         <List
                             size="sm"
@@ -142,7 +144,7 @@ const Layout = () => {
                     <Outlet />
                 </Box>
             </Box>
-        </CssVarsProvider>
+        </CssVarsProvider >
     )
 }
 

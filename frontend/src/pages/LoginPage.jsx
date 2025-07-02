@@ -6,7 +6,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 
 const LoginPage = () => {
     const formRef = useRef();
-    const login = useAuthStore((state) => state.login);
+    const { login, setUser } = useAuthStore((state) => state);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -24,7 +24,14 @@ const LoginPage = () => {
             return axios.post('http://localhost:8080/auth/login', data);
         },
         onSuccess: (res) => {
-            login(res.data);
+            login(res.data.token);
+            setUser({
+                id: res.data.id,
+                email: res.data.email,
+                firstName: res.data.firstName,
+                lastName: res.data.lastName,
+                role: res.data.role,
+            });
             console.log(res)
         },
         onError: (err) => {
