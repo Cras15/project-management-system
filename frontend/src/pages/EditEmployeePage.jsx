@@ -4,11 +4,13 @@ import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate, useParams } from "react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNotification } from "../contexts/NotificationContext";
 
 const EditEmployeePage = () => {
     const token = useAuthStore((state) => state.token);
     const { id } = useParams();
     const navigation = useNavigate();
+    const { addNotification } = useNotification();
 
     const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
 
@@ -30,11 +32,11 @@ const EditEmployeePage = () => {
             }
         })
             .then(response => {
-                console.log('Çalışan eklendi:', response.data);
+                addNotification('Çalışan başarıyla güncellendi', { type: 'success' });
                 navigation('/employees');
             })
             .catch(error => {
-                console.error(error);
+                addNotification(error.response.data || 'Çalışan güncellenirken bir hata oluştu', { type: 'danger' });
             });
     }
 

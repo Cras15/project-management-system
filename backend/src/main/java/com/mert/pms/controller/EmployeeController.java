@@ -2,7 +2,6 @@ package com.mert.pms.controller;
 
 import com.mert.pms.dto.EmployeeDTO;
 import com.mert.pms.model.Employee;
-import com.mert.pms.repository.EmployeeRepository;
 import com.mert.pms.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,15 +42,20 @@ public class EmployeeController {
     @PostMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
     public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
-        System.out.println(id);
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok("Çalışan silindi");
     }
 
     @PutMapping("/update/{id}")
     @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
-    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employee) {
-        employeeService.updateEmployee(id,employee);
+    public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
+        Employee existingUser = employeeService.findByEmail(employeeDTO.getEmail());
+        Employee oldEmployee = employeeService.getEmployeeById(id);
+        
+        if (existingUser != null && !oldEmployee.getEmail().equals(employeeDTO.getEmail()))
+            return new ResponseEntity<>("Bu e-posta adresi zaten kullanılıyor!", HttpStatus.BAD_REQUEST);
+
+        employeeService.updateEmployee(oldEmployee,employeeDTO);
         return ResponseEntity.ok("Çalışan güncellendi");
     }
 

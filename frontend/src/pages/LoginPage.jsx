@@ -3,10 +3,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useRef } from 'react'
 import { useAuthStore } from '../stores/useAuthStore';
+import { useNotification } from '../contexts/NotificationContext';
 
 const LoginPage = () => {
     const formRef = useRef();
     const { login, setUser } = useAuthStore((state) => state);
+    const { addNotification } = useNotification();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -33,9 +35,11 @@ const LoginPage = () => {
                 role: res.data.role,
             });
             console.log(res)
+            addNotification('Giriş başarılı', { type: 'success' });
         },
         onError: (err) => {
             console.log(err)
+            addNotification(err.response.data || 'Giriş yapılırken hata oluştu', { type: 'danger' });
         }
     })
     return (

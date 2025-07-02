@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Group } from '@mui/icons-material';
 import { Link } from 'react-router';
 import { format } from 'date-fns';
+import { useNotification } from '../contexts/NotificationContext';
 
 const roleColors = {
     'EMPLOYEE': 'primary',
@@ -17,6 +18,7 @@ const roleText = {
 
 const EmployeesPage = () => {
     const token = useAuthStore((state) => state.token);
+    const { addNotification } = useNotification();
 
     const fetchEmployees = async () => {
         const { data } = await axios.get('http://localhost:8080/employee/get', {
@@ -40,8 +42,9 @@ const EmployeesPage = () => {
                 }
             });
             refetch();
+            addNotification('Çalışan başarıyla silindi', { type: 'success' });
         } catch (error) {
-            console.error(error);
+            addNotification(error.response.data || 'Çalışan silinirken hata oluştu', { type: 'danger' });
         }
     };
 

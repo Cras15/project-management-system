@@ -5,11 +5,13 @@ import { useAuthStore } from '../stores/useAuthStore';
 import { useNavigate, useParams } from 'react-router';
 import { Autocomplete, Box, Button, FormControl, FormLabel, IconButton, Input, Option, Select, Table, Typography } from '@mui/joy';
 import { DeleteOutline, People } from '@mui/icons-material';
+import { useNotification } from '../contexts/NotificationContext';
 
 const EditProject = () => {
     const token = useAuthStore((state) => state.token);
     const { id } = useParams();
     const navigation = useNavigate();
+    const { addNotification } = useNotification();
 
     const [formData, setFormData] = useState({ projectName: '', status: '' });
 
@@ -65,12 +67,12 @@ const EditProject = () => {
             }
         })
             .then(response => {
-                console.log('Proje güncellendi:', response.data);
+                addNotification('Proje başarıyla güncellendi', { type: 'success' });
                 navigation('/');
             }
             )
             .catch(error => {
-                console.error('Proje güncellenirken hata oluştu:', error);
+                addNotification(error.response.data || 'Proje güncellenirken hata oluştu', { type: 'danger' });
             });
     };
     const onChangeAssignedEmployee = (event, newValue) => {
@@ -82,9 +84,11 @@ const EditProject = () => {
             })
                 .then(response => {
                     refetch();
+                    addNotification('Çalışan proje atamasına eklendi', { type: 'success' });
+                    setFormData(prev => ({ ...prev, assignedEmployee: '' }));
                 })
                 .catch(error => {
-                    console.error('Çalışan eklenirken hata oluştu:', error);
+                    addNotification(error.response.data || 'Çalışan eklenirken hata oluştu', { type: 'danger' });
                 });
         }
     };
@@ -98,9 +102,10 @@ const EditProject = () => {
         })
             .then(response => {
                 refetch();
+                addNotification('Çalışan ataması başarıyla silindi', { type: 'success' });
             })
             .catch(error => {
-                console.error('Çalışan ataması silinirken hata oluştu:', error);
+                addNotification(error.response.data || 'Çalışan ataması silinirken hata oluştu', { type: 'danger' });
             });
     };
 

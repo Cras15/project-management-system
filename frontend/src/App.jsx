@@ -11,11 +11,11 @@ import CreateProjectPage from './pages/CreateProjectPage'
 import EditEmployeePage from './pages/EditEmployeePage'
 
 function App() {
-  const token = useAuthStore((state) => state.token);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   return (
     <Routes>
-      {token != undefined ?
+      {isAuthenticated ?
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="project/:id" element={<EditProject />} />

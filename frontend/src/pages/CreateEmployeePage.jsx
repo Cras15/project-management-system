@@ -2,10 +2,12 @@ import { Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from "
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate } from "react-router";
+import { useNotification } from "../contexts/NotificationContext";
 
 const CreateEmployeePage = () => {
   const token = useAuthStore((state) => state.token);
   const navigation = useNavigate();
+  const { addNotification } = useNotification();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,11 +26,11 @@ const CreateEmployeePage = () => {
       }
     })
       .then(response => {
-        console.log('Çalışan eklendi:', response.data);
+        addNotification('Çalışan başarıyla eklendi', { type: 'success' });
         navigation('/employees');
       })
       .catch(error => {
-        console.error(error);
+        addNotification(error.response.data || 'Çalışan eklenirken bir hata oluştu', { type: 'danger' });
       });
   }
 

@@ -25,12 +25,11 @@ public class EmployeeService {
     public Employee findByEmail(String email) {
         return employeeRepository.findByEmail(email);
     }
-    public void updateEmployee(Long id, EmployeeDTO employeeDTO) {
-        Employee employee = getEmployeeById(id);
-        employee.setFirstName(employeeDTO.getFirstName());
-        employee.setLastName(employeeDTO.getLastName());
-        employee.setEmail(employeeDTO.getEmail());
-        employeeRepository.save(employee);
+    public void updateEmployee(Employee oldEmployee, EmployeeDTO employeeDTO) {
+        oldEmployee.setFirstName(employeeDTO.getFirstName());
+        oldEmployee.setLastName(employeeDTO.getLastName());
+        oldEmployee.setEmail(employeeDTO.getEmail());
+        employeeRepository.save(oldEmployee);
     }
     public void deleteEmployee(Long id) {
         Employee employee = getEmployeeById(id);

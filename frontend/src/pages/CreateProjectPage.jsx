@@ -2,10 +2,12 @@ import { Button, FormControl, FormLabel, Input, Link, Option, Select, Sheet, Typ
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { Navigate, useNavigate } from "react-router";
+import { useNotification } from "../contexts/NotificationContext";
 
 const CreateProjectPage = () => {
     const token = useAuthStore((state) => state.token);
     const navigate = useNavigate();
+    const { addNotification } = useNotification();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -22,11 +24,11 @@ const CreateProjectPage = () => {
             }
         })
             .then(response => {
-                console.log('Proje eklendi:', response.data);
+                addNotification('Proje başarıyla eklendi', { type: 'success' });
                 navigate('/');
             })
             .catch(error => {
-                console.error(error);
+                addNotification(error.response.data || 'Proje eklenirken bir hata oluştu', { type: 'danger' });
             });
     }
     return (

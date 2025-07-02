@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Group } from '@mui/icons-material';
 import { Link } from 'react-router';
+import { useNotification } from '../contexts/NotificationContext';
 
 const statusColors = {
     'NEW': 'primary',
@@ -20,6 +21,7 @@ const statusText = {
 
 const HomePage = () => {
     const {token,user} = useAuthStore((state) => state);
+    const { addNotification } = useNotification();
 
     const fetchProjects = async () => {
         const { data } = await axios.get('http://localhost:8080/project/get', {
@@ -43,8 +45,9 @@ const HomePage = () => {
                 }
             });
             refetch();
+            addNotification('Proje başarıyla silindi', { type: 'success' });
         } catch (error) {
-            console.error(error);
+            addNotification(error.response.data || 'Proje silinirken hata oluştu', { type: 'danger' });
         }
     };
 
