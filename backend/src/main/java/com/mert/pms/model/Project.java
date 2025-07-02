@@ -1,0 +1,30 @@
+package com.mert.pms.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.Set;
+
+@Data
+@Entity
+@Table(name = "projects")
+public class Project {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String projectName;
+
+    @Enumerated(EnumType.STRING)
+    private ProjectStatus status;
+
+    @ManyToMany
+    @JoinTable(
+            name = "project_employees",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id")
+    )
+    private Set<Employee> assignedEmployees;
+}
