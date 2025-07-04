@@ -1,7 +1,10 @@
 package com.mert.pms.security;
 
 import com.mert.pms.model.Employee;
+import com.mert.pms.model.Permission;
+import com.mert.pms.model.Role;
 import com.mert.pms.repository.EmployeeRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +12,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class CustomEmployeeDetailsService implements UserDetailsService {
@@ -20,16 +25,24 @@ public class CustomEmployeeDetailsService implements UserDetailsService {
     }
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Employee user = employeeRepository.findByEmail(email);
+        Employee employee = employeeRepository.findByEmail(email);
 
-        if (user != null && user.getRole() != null) {
-            GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().name());
-            return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                    user.getPassword(),
-                    Collections.singletonList(authority));
-        } else {
-            throw new UsernameNotFoundException("Geçersiz e-posta veya şifre.");
+        return new org.springframework.security.core.userdetails.User(
+                employee.getEmail(),
+                employee.getPassword(),
+                getAuthorities(employee.getRoles()));
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roles) {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+            for(Permission permission : role.getPermissions()){
+                authorities.add(new SimpleGrantedAuthority(permission.getName()));
+            }
         }
+        return authorities;
     }
 }

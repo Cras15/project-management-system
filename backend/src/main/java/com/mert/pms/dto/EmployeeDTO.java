@@ -1,8 +1,11 @@
 package com.mert.pms.dto;
 
+import com.mert.pms.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
+
+import java.util.Set;
 
 @Data
 public class EmployeeDTO {
@@ -18,4 +21,6 @@ public class EmployeeDTO {
 
     @NotEmpty(message = "Şifre boş olamaz.")
     private String password;
+
+    private Set<Role> roles;
 }

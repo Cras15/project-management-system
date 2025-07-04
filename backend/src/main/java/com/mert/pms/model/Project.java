@@ -21,7 +21,7 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "project_employees",
             joinColumns = @JoinColumn(name = "project_id"),

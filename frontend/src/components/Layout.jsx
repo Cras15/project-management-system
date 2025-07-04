@@ -9,11 +9,13 @@ import {
     Sheet,
     CssVarsProvider,
     IconButton,
-    CssBaseline
+    CssBaseline,
+    ListDivider
 } from '@mui/joy';
-import { AssignmentTurnedInRounded, DashboardRounded, LogoutRounded, Menu, PeopleRounded, SettingsRounded, ShoppingCartRounded } from '@mui/icons-material';
+import { AssignmentTurnedInRounded, DashboardRounded, KeyRounded, LogoutRounded, ManageAccountsRounded, Menu, PeopleRounded, SettingsRounded, ShoppingCartRounded } from '@mui/icons-material';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import { useAuthStore } from '../stores/useAuthStore';
+import { hasPermission } from '../utils/PermissionControl';
 
 const Layout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -90,13 +92,30 @@ const Layout = () => {
                                     Projeler
                                 </ListItemButton>
                             </ListItem>
-                            {user?.role === 'PROJECT_MANAGER' && (
+                            {hasPermission(user, 'EMLPYEE_LIST_GET') && (
                                 <ListItem>
                                     <ListItemButton selected={pathname === '/employees'} component={Link} to="/employees">
                                         <ListItemDecorator><PeopleRounded /></ListItemDecorator>
                                         Çalışanlar
                                     </ListItemButton>
                                 </ListItem>
+                            )}
+                            <ListDivider />
+                            {hasPermission(user, 'ROLE_ADMIN') && (
+                                <React.Fragment key={user?.id}>
+                                    <ListItem>
+                                        <ListItemButton selected={pathname === '/role'} component={Link} to="/role">
+                                            <ListItemDecorator><ManageAccountsRounded /></ListItemDecorator>
+                                            Rol Yönetimi
+                                        </ListItemButton>
+                                    </ListItem>
+                                    <ListItem>
+                                        <ListItemButton selected={pathname === '/permission'} component={Link} to="/permission">
+                                            <ListItemDecorator><KeyRounded /></ListItemDecorator>
+                                            Yetki Yönetimi
+                                        </ListItemButton>
+                                    </ListItem>
+                                </React.Fragment>
                             )}
                         </List>
                         <List

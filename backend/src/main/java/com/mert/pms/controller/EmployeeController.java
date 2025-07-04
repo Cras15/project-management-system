@@ -18,6 +18,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping("/add")
+    @PreAuthorize("hasAuthority('EMPLOYEE_ADD') or hasRole('ADMIN')")
     public ResponseEntity<?> addEmployee(@RequestBody EmployeeDTO employeeDTO) {
         Employee existingUser = employeeService.findByEmail(employeeDTO.getEmail());
 
@@ -28,30 +29,30 @@ public class EmployeeController {
     }
 
     @GetMapping("/get")
-    @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_GET') or hasRole('ADMIN')")
     public List<Employee> getAllEmployees() {
         return employeeService.findAllUsers();
     }
 
     @GetMapping("/get/{id}")
-    @PreAuthorize("hasAnyAuthority('PROJECT_MANAGER')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_GET') or hasRole('ADMIN')")
     public Employee getEmployeeById(@PathVariable Long id) {
         return employeeService.getEmployeeById(id);
     }
 
     @PostMapping("/delete/{id}")
-    @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_DELETE') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.ok("Çalışan silindi");
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasAuthority('PROJECT_MANAGER')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE') or hasRole('ADMIN')")
     public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
         Employee existingUser = employeeService.findByEmail(employeeDTO.getEmail());
         Employee oldEmployee = employeeService.getEmployeeById(id);
-        
+
         if (existingUser != null && !oldEmployee.getEmail().equals(employeeDTO.getEmail()))
             return new ResponseEntity<>("Bu e-posta adresi zaten kullanılıyor!", HttpStatus.BAD_REQUEST);
 

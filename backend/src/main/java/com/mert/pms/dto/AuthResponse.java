@@ -4,6 +4,8 @@ import com.mert.pms.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 public class AuthResponse {
@@ -12,5 +14,5 @@ public class AuthResponse {
     private String firstName;
     private String lastName;
     private String email;
-    private Role role;
+    private Set<Role> role;
 }

@@ -6,15 +6,7 @@ import { Group } from '@mui/icons-material';
 import { Link } from 'react-router';
 import { format } from 'date-fns';
 import { useNotification } from '../contexts/NotificationContext';
-
-const roleColors = {
-    'EMPLOYEE': 'primary',
-    'PROJECT_MANAGER': 'danger',
-};
-const roleText = {
-    'EMPLOYEE': 'Çalışan',
-    'PROJECT_MANAGER': 'Proje Yöneticisi',
-};
+import CustomTable from '../components/CustomTable';
 
 const EmployeesPage = () => {
     const token = useAuthStore((state) => state.token);
@@ -33,6 +25,47 @@ const EmployeesPage = () => {
         queryFn: fetchEmployees,
     });
 
+    const roleColors = {
+        ROLE_ADMIN: 'danger',
+        PROJECT_MANAGER: 'primary',
+        DEVELOPER: 'success',
+    };
+
+    const employeeColumns = [
+        {
+            header: 'Ad Soyad',
+            style: { textAlign: 'center' },
+            render: (row) => <Typography level="body-md">{`${row.firstName} ${row.lastName}`}</Typography>,
+        },
+        {
+            header: 'E-Mail',
+            style: { textAlign: 'center' },
+            render: (row) => <Typography level="body-sm">{row.email}</Typography>,
+        },
+        {
+            header: 'Rol',
+            style: { textAlign: 'center' },
+            render: (row) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {row.roles.map((role) => (
+                        <Chip key={role.id} variant="soft" size="sm" color={roleColors[role.name] || 'primary'} sx={{ fontSize: '0.75rem' }}>
+                            {role.name}
+                        </Chip>
+                    ))}
+                </Box>
+            ),
+        },
+        {
+            header: 'Üyelik Tarihi',
+            style: { textAlign: 'center' },
+            render: (row) => (
+                <Typography level="body-sm">
+                    {format(row.createTime, 'dd/MM/yyyy HH:mm')}
+                </Typography>
+            ),
+        },
+    ];
+
     const handleDelete = async (employeeId) => {
         try {
             if (!window.confirm('Çalışan silinecek, onaylıyor musunuz?')) return;
@@ -49,67 +82,16 @@ const EmployeesPage = () => {
     };
 
     return (
-        <>
-            <Button
-                variant="solid"
-                color="primary"
-                size="sm"
-                sx={{ mb: 2 }}
-                component={Link}
-                to="/employee/create"
-            >
-                <Group sx={{ mr: 1 }} />
-                Yeni Çalışan Ekle
-            </Button>
-            <Sheet
-                variant="outlined"
-                sx={{
-                    width: '100%',
-                    borderRadius: 'sm',
-                    boxShadow: 'sm',
-                    overflow: 'auto',
-                }}
-            >
-                <Table
-                    stripe="odd"
-                    hoverRow
-                >
-                    <thead>
-                        <tr>
-                            <th>Ad Soyad</th>
-                            <th>E-Mail</th>
-                            <th>Rol</th>
-                            <th>Üyelik Tarihi</th>
-                            <th>İşlemler</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            data?.map((row) => (
-                                <tr key={row.id}>
-                                    <td><Typography level="body-md" textAlign="left">{row.firstName} {row.lastName}</Typography></td>
-                                    <td><Typography level="body-md" textAlign="left">{row.email}</Typography></td>
-                                    <td style={{ textAlign: 'left' }}>
-                                        <Chip
-                                            variant="soft"
-                                            size="sm"
-                                            color={roleColors[row.role] || 'neutral'}>
-                                            {roleText[row.role] || 'Bilinmiyor'}
-                                        </Chip>
-                                    </td>
-                                    <td><Typography level="body-md" textAlign="left">{format(row.createTime, 'dd/MM/yyyy HH:mm')}</Typography></td>
-                                    <td>
-                                        <Box sx={{ display: 'flex', gap: 1 }}>
-                                            <Button variant="plain" color="primary" size="sm" component={Link} to={`/employee/${row.id}`}>Düzenle</Button>
-                                            <Button variant="plain" color="danger" size="sm" onClick={() => handleDelete(row.id)}>Sil</Button>
-                                        </Box>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </Table>
-            </Sheet>
-        </>
+        <CustomTable
+            columns={employeeColumns}
+            data={data}
+            editLink="/employee"
+            handleDelete={handleDelete}
+            actionColumnHeader="İşlemler"
+            renderActions
+            createLink="/employee/create"
+            createText='Yeni Çalışan Ekle'
+        />
     )
 }
 

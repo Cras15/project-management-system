@@ -9,13 +9,17 @@ import EmployeesPage from './pages/EmployeesPage'
 import CreateEmployeePage from './pages/CreateEmployeePage'
 import CreateProjectPage from './pages/CreateProjectPage'
 import EditEmployeePage from './pages/EditEmployeePage'
+import RolePage from './pages/RolePage'
+import PermissionPage from './pages/PermissionPage'
+import EditRole from './pages/EditRole'
+import EditPermission from './pages/EditPermission'
 
 function App() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const token = useAuthStore((state) => state.token);
 
   return (
     <Routes>
-      {isAuthenticated ?
+      {token != null ?
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="project/:id" element={<EditProject />} />
@@ -23,9 +27,17 @@ function App() {
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="employee/:id" element={<EditEmployeePage />} />
           <Route path="employee/create" element={<CreateEmployeePage />} />
+          <Route path="role" element={<RolePage />} />
+          <Route path="permission" element={<PermissionPage />} />
+          <Route path='role/edit/:id' element={<EditRole />} />
+          <Route path='role/edit' element={<EditRole />} />
+          <Route path='permission/edit/:id' element={<EditPermission />} />
+          <Route path='permission/edit' element={<EditPermission />} />
+          <Route path="*" element={<div>404 Not Found</div>} />
         </Route>
         : <>
           <Route index element={<LoginPage />} />
+          <Route path="*" element={<div>404 Not Found</div>} />
         </>
       }
     </Routes>

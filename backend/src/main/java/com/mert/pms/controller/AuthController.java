@@ -29,15 +29,6 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registration(@RequestBody EmployeeDTO employeeDTO) {
-        Employee existingUser = employeeService.findByEmail(employeeDTO.getEmail());
-
-        if (existingUser != null)
-            return new ResponseEntity<>("Bu e-posta adresi zaten kullanılıyor!", HttpStatus.BAD_REQUEST);
-
-        return ResponseEntity.ok(employeeService.addEmployee(employeeDTO));
-    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
@@ -53,7 +44,7 @@ public class AuthController {
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getEmail(),
-                employee.getRole());
+                employee.getRoles());
         return ResponseEntity.ok(authResponse);
     }
 

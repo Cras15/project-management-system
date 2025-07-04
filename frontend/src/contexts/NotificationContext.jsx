@@ -33,6 +33,7 @@ export const NotificationProvider = ({ children }) => {
           flexDirection: 'column',
           gap: 1,
           zIndex: 1400,
+          p:0
         }}
       >
         {notifications.map((notification) => (

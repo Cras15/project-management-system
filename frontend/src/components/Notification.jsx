@@ -16,19 +16,6 @@ const iconMapping = {
 };
 
 const Notification = ({ id, message, type = 'info', duration = 5000, onClose }) => {
-
-  useEffect(() => {
-    if (duration) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, duration);
-
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [id, duration, onClose]);
-
   return (
     <Snackbar
       autoHideDuration={duration}
@@ -49,13 +36,15 @@ const Notification = ({ id, message, type = 'info', duration = 5000, onClose }) 
             opacity: 1,
           },
         },
-        padding:0
+        margin: 0,
+        padding: 0
       }}
     >
       <Alert
         variant="soft"
         color={type}
         startDecorator={iconMapping[type]}
+        sx={{ m: 0 }}
         endDecorator={
           <IconButton onClick={onClose} size="sm" variant="plain" color={type}>
             <CloseIcon />

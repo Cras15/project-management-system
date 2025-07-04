@@ -1,18 +1,19 @@
-import { Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from "@mui/joy"
+import { Autocomplete, Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from "@mui/joy"
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate, useParams } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNotification } from "../contexts/NotificationContext";
+import { hasPermission } from "../utils/PermissionControl";
 
 const EditEmployeePage = () => {
-    const token = useAuthStore((state) => state.token);
+    const {token, user} = useAuthStore((state) => state);
     const { id } = useParams();
     const navigation = useNavigate();
     const { addNotification } = useNotification();
 
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', roles: null });
 
     const onChange = (e) => {
         const { name, value } = e.target;
@@ -24,7 +25,8 @@ const EditEmployeePage = () => {
         axios.put(`http://localhost:8080/employee/update/${id}`, {
             firstName: formData.firstName,
             lastName: formData.lastName,
-            email: formData.email
+            email: formData.email,
+            roles: formData.roles.map(role => ({ id: role.id, name: role.name }))
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -46,17 +48,39 @@ const EditEmployeePage = () => {
                 'Authorization': `Bearer ${token}`
             }
         });
-        setFormData({
-            firstName: data.firstName || '',
-            lastName: data.lastName || '',
-            email: data.email || ''
-        });
         return data;
     };
     const { data, isLoading, isError, error, refetch } = useQuery({
         queryKey: ['employee'],
         queryFn: fetchEmployee,
     });
+
+    const { data: roles } = useQuery({
+        queryKey: ['roles'],
+        queryFn: async () => {
+            const { data } = await axios.get('http://localhost:8080/admin/role', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return data;
+        }
+    });
+
+    useEffect(() => {
+        if (data) {
+            setFormData({
+                firstName: data.firstName || '',
+                lastName: data.lastName || '',
+                email: data.email || '',
+                roles: data.roles || []
+            });
+        }
+    }, [data]);
+
+    useEffect(() => {
+        console.log(formData);
+    }, [formData]);
 
     return (
         <Sheet
@@ -106,6 +130,19 @@ const EditEmployeePage = () => {
                         onChange={onChange}
                         type="email"
                         placeholder="mail@pms.com"
+                    />
+                </FormControl>
+                <FormControl>
+                    <FormLabel>Rol</FormLabel>
+                    <Autocomplete
+                        multiple
+                        options={roles ? roles : []}
+                        getOptionLabel={(option) => option.name}
+                        getOptionKey={(option => option.id)}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                        onChange={(event, value) => setFormData(prev => ({ ...prev, roles: value.map(role => ({ name: role.name, id: role.id })) }))}
+                        value={formData.roles || []}
+                        getOptionDisabled={(option) => !hasPermission(user, `ADD_${option.name}`)}
                     />
                 </FormControl>
                 <Button sx={{ mt: 1 }} type="submit">Kaydet</Button>

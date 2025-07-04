@@ -6,6 +6,7 @@ import com.mert.pms.model.Employee;
 import com.mert.pms.model.Project;
 import com.mert.pms.repository.EmployeeRepository;
 import com.mert.pms.repository.ProjectRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,6 +45,7 @@ public class ProjectService {
         projectRepository.deleteById(id);
     }
 
+    @Transactional
     public String assignEmployee(AssignEmployeeDTO employeeDTO) {
         try {
             Employee employee = employeeRepository.findById(employeeDTO.getEmployeeId()).get();
@@ -56,6 +58,7 @@ public class ProjectService {
         }
     }
 
+    @Transactional
     public String deleteAssignedEmployee(AssignEmployeeDTO employeeDTO) {
         try {
             Project project = findById(employeeDTO.getProjectId());

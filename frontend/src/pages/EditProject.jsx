@@ -77,7 +77,7 @@ const EditProject = () => {
     };
     const onChangeAssignedEmployee = (event, newValue) => {
         if (newValue) {
-            axios.post(`http://localhost:8080/project/assignEmployee`, { employeeId: newValue.id, projectId: id }, {
+            axios.post(`http://localhost:8080/project/assignEmployee`, { employeeId: newValue.id, projectId: data.id }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
