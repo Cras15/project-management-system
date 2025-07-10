@@ -8,6 +8,8 @@ import com.mert.pms.repository.ProjectRepository;
 import com.mert.pms.service.EmployeeService;
 import com.mert.pms.service.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,37 +44,31 @@ public class ProjectController {
     }
 
     @GetMapping("/get")
-    //@PreAuthorize("hasAuthority('PROJECT_GET') or hasRole('ADMIN')")
-    public ResponseEntity<?> findAll(Principal principal) {
+    public ResponseEntity<?> findAll(
+            @RequestParam(required = false) String search,
+            Pageable pageable,
+            Principal principal) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Employee employee = employeeService.findByEmail(principal.getName());
-        Set<Project> projects = projectService.findByEmployeeId(employee.getId());
+        Page<Project> projects = projectService.findByEmployeeId(pageable, employee.getId());
 
         if (authorities.contains(new SimpleGrantedAuthority("PROJECT_GET")) ||
                 authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
-            return ResponseEntity.ok(projectService.findAll());
+            return ResponseEntity.ok(projectService.findProducts(search, pageable));
         } else if (!projects.isEmpty()) {
             return ResponseEntity.ok(projects);
         } else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-
     @GetMapping("/get/{id}")
-    @PreAuthorize("hasAuthority('PROJECT_GET') or hasRole('ADMIN')")
-    public ResponseEntity<?> findById(@PathVariable Long id, Principal principal) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Employee employee = employeeService.findByEmail(principal.getName());
+    @PreAuthorize("hasAuthority('PROJECT_VIEW') or hasRole('ADMIN')")
+    public ResponseEntity<?> findById(@PathVariable Long id) {
         Project project = projectService.findById(id);
-
-        /*if (project.getAssignedEmployees().contains(employee) &&
-                authentication.getAuthorities().stream()
-                        .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))
-            return new ResponseEntity<>("Bunu yapmaya yetkin yok!", HttpStatus.UNAUTHORIZED);*/
         return ResponseEntity.ok(project);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @PostMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('PROJECT_DELETE') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         projectService.deleteById(id);
@@ -94,7 +90,7 @@ public class ProjectController {
     }
 
     @PostMapping("/deleteEmployee")
-    @PreAuthorize("hasAuthority('PROJECT_ASSIGN_EMPLOYEE') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('PROJECT_DELETE_ASSIGN_EMPLOYEE') or hasRole('ADMIN')")
     public ResponseEntity<?> deleteEmployeeFromProject(@RequestBody AssignEmployeeDTO assignEmployeeDTO) {
         return ResponseEntity.ok(
                 projectService.deleteAssignedEmployee(assignEmployeeDTO));

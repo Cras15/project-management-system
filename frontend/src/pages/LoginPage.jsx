@@ -1,7 +1,7 @@
-import { Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from '@mui/joy'
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { Box, Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from '@mui/joy'
+import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { useAuthStore } from '../stores/useAuthStore';
 import { useNotification } from '../contexts/NotificationContext';
 
@@ -43,7 +43,7 @@ const LoginPage = () => {
         }
     })
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '90vh', width: '100%' }}>
+        <Box style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '90vh', width: '100%' }}>
             <Sheet
                 sx={{
                     width: 300,
@@ -83,7 +83,7 @@ const LoginPage = () => {
                     <Button sx={{ mt: 1 }} type='submit'>Giriş Yap</Button>
                 </form>
             </Sheet>
-        </div>
+        </Box>
     )
 }
 

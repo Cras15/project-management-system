@@ -8,7 +8,10 @@ import com.mert.pms.repository.EmployeeRepository;
 import com.mert.pms.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -20,15 +23,11 @@ public class ProjectService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    public List<Project> findAll() {
-        return projectRepository.findAll();
-    }
-
     public Project findById(Long id) {
         return projectRepository.findById(id).get();
     }
-    public Set<Project> findByEmployeeId(Long id) {
-        return projectRepository.findProjectsByEmployeeId(id);
+    public Page<Project> findByEmployeeId(Pageable pageable, Long id) {
+        return projectRepository.findProjectsByEmployeeId(pageable, id);
     }
     public void saveProject(Project project) {
         projectRepository.save(project);
@@ -74,5 +73,13 @@ public class ProjectService {
     public Set<Employee> getAssignEmployees(Long projectId) {
         Project project = findById(projectId);
         return project.getAssignedEmployees();
+    }
+
+    public Page<Project> findProducts(String keyword, Pageable pageable) {
+        if (StringUtils.hasText(keyword)) {
+            return projectRepository.findByProjectNameContainingIgnoreCase(keyword, pageable);
+        } else {
+            return projectRepository.findAll(pageable);
+        }
     }
 }

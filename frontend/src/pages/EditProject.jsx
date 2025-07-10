@@ -45,7 +45,7 @@ const EditProject = () => {
                 'Authorization': `Bearer ${token}`
             }
         });
-        return data;
+        return data.content;
     };
 
     const { data, isLoading, isError, error, refetch } = useQuery({

@@ -4,6 +4,8 @@ import com.mert.pms.dto.EmployeeDTO;
 import com.mert.pms.model.Employee;
 import com.mert.pms.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,8 +32,10 @@ public class EmployeeController {
 
     @GetMapping("/get")
     @PreAuthorize("hasAuthority('EMPLOYEE_GET') or hasRole('ADMIN')")
-    public List<Employee> getAllEmployees() {
-        return employeeService.findAllUsers();
+    public ResponseEntity<Page<Employee>> getAllEmployees(
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+        return ResponseEntity.ok(employeeService.findEmployees(search, pageable));
     }
 
     @GetMapping("/get/{id}")
@@ -48,7 +52,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasAuthority('EMPLOYEE_UPDATE') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('EMPLOYEE_EDIT') or hasRole('ADMIN')")
     public ResponseEntity<?> updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
         Employee existingUser = employeeService.findByEmail(employeeDTO.getEmail());
         Employee oldEmployee = employeeService.getEmployeeById(id);
@@ -56,7 +60,7 @@ public class EmployeeController {
         if (existingUser != null && !oldEmployee.getEmail().equals(employeeDTO.getEmail()))
             return new ResponseEntity<>("Bu e-posta adresi zaten kullanılıyor!", HttpStatus.BAD_REQUEST);
 
-        employeeService.updateEmployee(oldEmployee,employeeDTO);
+        employeeService.updateEmployee(oldEmployee, employeeDTO);
         return ResponseEntity.ok("Çalışan güncellendi");
     }
 

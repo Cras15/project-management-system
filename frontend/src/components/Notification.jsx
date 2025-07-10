@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import { Snackbar, Alert, IconButton, Typography } from '@mui/joy';
 import {
   Info as InfoIcon,
@@ -15,7 +14,7 @@ const iconMapping = {
   info: <InfoIcon />,
 };
 
-const Notification = ({ id, message, type = 'info', duration = 5000, onClose }) => {
+const Notification = ({ message, type = 'info', duration = 5000, onClose }) => {
   return (
     <Snackbar
       autoHideDuration={duration}

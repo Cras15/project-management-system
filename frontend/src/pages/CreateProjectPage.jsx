@@ -1,7 +1,7 @@
-import { Button, FormControl, FormLabel, Input, Link, Option, Select, Sheet, Typography } from "@mui/joy"
+import { Button, FormControl, FormLabel, Input, Option, Select, Sheet, Typography } from "@mui/joy"
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useNotification } from "../contexts/NotificationContext";
 
 const CreateProjectPage = () => {

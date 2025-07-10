@@ -45,7 +45,7 @@ const EditRole = () => {
         queryKey: ['permissions'],
         queryFn: async () => await axios.get(`http://localhost:8080/admin/permissions`,
             { headers: { Authorization: `Bearer ${token}` } }
-        ).then(res => res.data),
+        ).then(res => res.data.content),
     });
 
     React.useEffect(() => {

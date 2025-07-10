@@ -1,36 +1,33 @@
-import { Box, Button, Card, Chip, Sheet, Skeleton, Table, Typography } from '@mui/joy'
-import React from 'react'
+import { Box, Chip, Typography } from '@mui/joy'
 import { useAuthStore } from '../stores/useAuthStore';
-import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Group } from '@mui/icons-material';
-import { Link } from 'react-router';
 import { useNotification } from '../contexts/NotificationContext';
-import CustomTable from '../components/CustomTable';
 import { hasPermission } from '../utils/PermissionControl';
+import PaginatedTable from '../components/PaginatedTable';
+import { usePaginatedQuery } from '../hooks/usePaginatedQuery';
 
 const HomePage = () => {
     const { token, user } = useAuthStore((state) => state);
     const { addNotification } = useNotification();
 
-    const fetchProjects = async () => {
-        const { data } = await axios.get('http://localhost:8080/project/get', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+    const fetchProjects = async ({ page, pageSize, token, searchTerm }) => {
+        const { data } = await axios.get(`http://localhost:8080/project/get?page=${page}&size=${pageSize}&sort=projectName&search=${searchTerm}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         return data;
     };
-    const { data, isLoading, isError, error, refetch } = useQuery({
-        queryKey: ['projects'],
-        queryFn: fetchProjects,
-        //enabled: hasPermission(user, 'PROJECT_GET'),
-    });
+    const {
+        refetch,
+    } = usePaginatedQuery(
+        ['projects'],
+        ({ page, pageSize, searchTerm }) => fetchProjects({ page, pageSize, token, searchTerm }),
+    );
 
     const handleDelete = async (projectId) => {
         try {
             if (!window.confirm('Proje silinecek, onaylıyor musunuz?')) return;
-            await axios.delete(`http://localhost:8080/project/delete/${projectId}`, {
+            await axios.post(`http://localhost:8080/project/delete/${projectId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -73,17 +70,20 @@ const HomePage = () => {
     ];
 
     return (
-        <>
-            <CustomTable
-                columns={columns}
-                data={data}
-                editLink="/project"
-                handleDelete={handleDelete}
-                renderActions={hasPermission(user, 'PROJECT_DELETE') || hasPermission(user, 'PROJECT_EDIT')}
-                createLink={hasPermission(user, 'PROJECT_ADD') && "/project/create"}
-                createText='Yeni Proje Ekle'
-            />
-        </>
+        <PaginatedTable
+            queryKey={['projects']}
+            fetchFn={fetchProjects}
+            columns={columns}
+            initialPageSize={5}
+            pageSizeOptions={[5, 10, 20]}
+            editLink="/project"
+            handleDelete={handleDelete}
+            renderActions={hasPermission(user, 'PROJECT_DELETE') || hasPermission(user, 'PROJECT_EDIT')}
+            renderSearch
+            createLink={hasPermission(user, 'PROJECT_ADD') && "/project/create"}
+            createText='Yeni Proje Ekle'
+            viewLink={hasPermission(user, 'PROJECT_VIEW') && "/project/view"}
+        />
     );
 }
 

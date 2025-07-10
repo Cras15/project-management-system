@@ -2,12 +2,16 @@ package com.mert.pms.service;
 
 import com.mert.pms.dto.EmployeeDTO;
 import com.mert.pms.model.Employee;
+import com.mert.pms.model.Project;
 import com.mert.pms.model.Role;
 import com.mert.pms.repository.EmployeeRepository;
 import com.mert.pms.repository.RoleRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,15 +69,19 @@ public class EmployeeService {
         return  employeeRepository.save(employee);
     }
 
-    public List<Employee> findAllUsers() {
-        return employeeRepository.findAll();
-    }
-
     public Employee loginEmployee(String email)
     {
         Employee employee = employeeRepository.findByEmail(email);
         employee.setLastLoginTime(LocalDateTime.now());
         employeeRepository.save(employee);
         return employee;
+    }
+
+    public Page<Employee> findEmployees(String keyword, Pageable pageable) {
+        if (StringUtils.hasText(keyword)) {
+            return employeeRepository.findByEmailContainingIgnoreCase(keyword, pageable);
+        } else {
+            return employeeRepository.findAll(pageable);
+        }
     }
 }

@@ -1,24 +1,57 @@
-import { Group } from '@mui/icons-material';
-import { Box, Button, Sheet, Table } from '@mui/joy'
+import { GroupRounded, SearchRounded } from '@mui/icons-material';
+import { Box, Button, IconButton, Input, Option, Select, Sheet, Table, ToggleButtonGroup, Typography } from '@mui/joy'
 import { Link } from 'react-router';
+import { generatePagination, DOTS } from '../utils/generatePagination';
+import React from 'react';
 
-const CustomTable = ({ data = [], columns = [], renderActions, actionColumnHeader = 'İşlemler', handleDelete, editLink, createLink, createText = "Yeni" }) => {
+const CustomTable = ({
+    data = [],
+    columns = [],
+    renderActions,
+    actionColumnHeader = 'İşlemler',
+    handleDelete,
+    editLink,
+    createLink,
+    viewLink,
+    createText = "Yeni",
+    page = 0,
+    setPage,
+    maxPage,
+    pageSize,
+    setPageSize,
+    pageSizeOptions = [5, 10, 25, 50],
+    renderSearch,
+    searchTerm,
+    setSearchTerm,
+    isFetching,
+}) => {
     if (!data) { return <div>Veri yükleniyor...</div>; }
+
+    const paginationItems = generatePagination({
+        currentPage: page,
+        totalPages: maxPage,
+        siblingCount: 1,
+    });
     return (
         <>
-            {createLink && (
-                <Button
-                    variant="solid"
-                    color="primary"
-                    size="sm"
-                    sx={{ mb: 2 }}
-                    component={Link}
-                    to={createLink || '#'}
-                >
-                    <Group sx={{ mr: 1 }} />
-                    {createText}
-                </Button>
-            )}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                {renderSearch &&
+                    <Input value={searchTerm} onChange={(e, value) => setSearchTerm(e.target.value)}
+                        size='sm' variant='outlined' placeholder='Ara...' startDecorator={<SearchRounded />} />
+                }
+                {createLink && (
+                    <Button
+                        variant="solid"
+                        color="primary"
+                        size="sm"
+                        component={Link}
+                        to={createLink || '#'}
+                    >
+                        <GroupRounded sx={{ mr: 1 }} />
+                        {createText}
+                    </Button>
+                )}
+            </Box>
             <Sheet
                 variant="outlined"
                 sx={{
@@ -40,7 +73,7 @@ const CustomTable = ({ data = [], columns = [], renderActions, actionColumnHeade
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((row) => (
+                        {data.length > 0 && data.map((row) => (
                             <tr key={row.id}>
                                 {columns.map((col) => (
                                     <td key={col.header}>
@@ -49,6 +82,11 @@ const CustomTable = ({ data = [], columns = [], renderActions, actionColumnHeade
                                 ))}
                                 {renderActions && <td style={{ textAlign: 'right', paddingRight: '32px' }}>
                                     <Box>
+                                        {viewLink &&
+                                            <Button variant="plain" color="primary" size="sm" component={Link} to={`${viewLink}/${row.id}` || '#'}>
+                                                Görüntüle
+                                            </Button>
+                                        }
                                         <Button variant="plain" color="primary" size="sm" component={Link} to={`${editLink}/${row.id}` || '#'}>
                                             Düzenle
                                         </Button>
@@ -61,8 +99,59 @@ const CustomTable = ({ data = [], columns = [], renderActions, actionColumnHeade
                     </tbody>
                 </Table>
             </Sheet>
+            {maxPage > 0 &&
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Typography level="body-sm">Sayfa başına:</Typography>
+                        <Select value={pageSize} onChange={(e, newValue) => setPageSize(newValue)} size="sm" variant="outlined">
+                            {pageSizeOptions.map((size) => (
+                                <Option key={size} value={size}>{size}</Option>
+                            ))}
+                        </Select>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, alignItems: 'center' }}>
+                        <IconButton
+                            sx={{ borderRadius: 128 }}
+                            color='primary'
+                            variant='soft'
+                            onClick={() => setPage(p => p - 1)}
+                            disabled={page === 0}
+                        >
+                            {'<'}
+                        </IconButton>
+                        {paginationItems.map((item, index) => {
+                            if (item === DOTS) {
+                                return <Typography key={`${item}-${index}`} sx={{ mx: 0.5 }}>...</Typography>;
+                            }
+                            return (
+                                <IconButton
+                                    key={item}
+                                    color="primary"
+                                    variant={page === item - 1 ? "solid" : "outlined"}
+                                    onClick={() => setPage(item - 1)}
+                                    sx={{ borderRadius: 128 }}
+                                >
+                                    {item}
+                                </IconButton>
+                            );
+                        })}
+                        <IconButton
+                            sx={{ borderRadius: 128 }}
+                            color='primary'
+                            variant='soft'
+                            onClick={() => setPage(p => p + 1)}
+                            disabled={page === maxPage - 1}
+                        >
+                            {'>'}
+                        </IconButton>
+                    </Box>
+                    <Box sx={{ mr: 2 }}>
+                        <Typography>{page + 1}/{maxPage}</Typography>
+                    </Box>
+                </Box>
+            }
         </>
     )
 }
 
-export default CustomTable
+export default React.memo(CustomTable);

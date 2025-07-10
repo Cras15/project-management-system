@@ -3,11 +3,15 @@ package com.mert.pms.service;
 import com.mert.pms.dto.PermissionEditDTO;
 import com.mert.pms.dto.RoleCreateDto;
 import com.mert.pms.model.Permission;
+import com.mert.pms.model.Project;
 import com.mert.pms.model.Role;
 import com.mert.pms.repository.PermissionRepository;
 import com.mert.pms.repository.RoleRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +45,7 @@ public class AdminService {
     @Transactional
     public Role updateRole(Long id, RoleCreateDto roleCreateDto) {
         Role role = roleRepository.findById(id).get();
-        Optional<Role> existsRole=roleRepository.findByName(roleCreateDto.getName());
+        Optional<Role> existsRole = roleRepository.findByName(roleCreateDto.getName());
 
         if (existsRole.isPresent() && !existsRole.get().getId().equals(id))
             throw new IllegalStateException("Role zaten mevcut");
@@ -75,20 +79,12 @@ public class AdminService {
         return roleRepository.save(role);
     }
 
-    public List<Role> findAllRoles() {
-        return roleRepository.findAll();
-    }
-
     public Role findRoleById(Long roleId) {
         return roleRepository.findById(roleId).get();
     }
 
     public Permission findPermissionById(Long permissionId) {
         return permissionRepository.findById(permissionId).get();
-    }
-
-    public List<Permission> findAllPermissions() {
-        return permissionRepository.findAll();
     }
 
     @Transactional
@@ -98,12 +94,28 @@ public class AdminService {
         return permissionRepository.save(permission);
     }
 
-    public void deletePermission(Long id){
+    public void deletePermission(Long id) {
         permissionRepository.deleteById(id);
     }
 
-    public void deleteRole(Long id){
+    public void deleteRole(Long id) {
         roleRepository.deleteById(id);
+    }
+
+    public Page<Permission> findPermissions(String keyword, Pageable pageable) {
+        if (StringUtils.hasText(keyword)) {
+            return permissionRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        } else {
+            return permissionRepository.findAll(pageable);
+        }
+    }
+
+    public Page<Role> findRoles(String keyword, Pageable pageable) {
+        if (StringUtils.hasText(keyword)) {
+            return roleRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        } else {
+            return roleRepository.findAll(pageable);
+        }
     }
 
 }

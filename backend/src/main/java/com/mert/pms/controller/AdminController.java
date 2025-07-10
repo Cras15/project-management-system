@@ -6,6 +6,8 @@ import com.mert.pms.dto.RoleCreateDto;
 import com.mert.pms.model.Permission;
 import com.mert.pms.model.Role;
 import com.mert.pms.service.AdminService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +32,10 @@ public class AdminController {
 
     @GetMapping("/role")
     @PreAuthorize("hasAuthority('ROLE_GET_LIST') or hasRole('ADMIN')")
-    public ResponseEntity<List<Role>> getAllRoles() {
-        return ResponseEntity.ok(adminService.findAllRoles());
+    public ResponseEntity<?> getAllRoles(
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+        return ResponseEntity.ok(adminService.findRoles(search, pageable));
     }
 
     @PutMapping("/role/{id}")
@@ -64,8 +68,10 @@ public class AdminController {
 
     @GetMapping("/permissions")
     @PreAuthorize("hasAuthority('PERMISSION_GET_LIST') or hasRole('ADMIN')")
-    public ResponseEntity<List<Permission>> getAllPermissions() {
-        return ResponseEntity.ok(adminService.findAllPermissions());
+    public ResponseEntity<?> getAllPermissions(
+            @RequestParam(required = false) String search,
+            Pageable pageable) {
+        return ResponseEntity.ok(adminService.findPermissions(search, pageable));
     }
 
     @GetMapping("/permission/{id}")

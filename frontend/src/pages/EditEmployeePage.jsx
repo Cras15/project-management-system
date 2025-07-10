@@ -1,4 +1,4 @@
-import { Autocomplete, Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from "@mui/joy"
+import { Autocomplete, Box, Button, FormControl, FormLabel, Input, Link, Sheet, Typography } from "@mui/joy"
 import axios from "axios";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate, useParams } from "react-router";
@@ -8,7 +8,7 @@ import { useNotification } from "../contexts/NotificationContext";
 import { hasPermission } from "../utils/PermissionControl";
 
 const EditEmployeePage = () => {
-    const {token, user} = useAuthStore((state) => state);
+    const { token, user } = useAuthStore((state) => state);
     const { id } = useParams();
     const navigation = useNavigate();
     const { addNotification } = useNotification();
@@ -50,7 +50,7 @@ const EditEmployeePage = () => {
         });
         return data;
     };
-    const { data, isLoading, isError, error, refetch } = useQuery({
+    const { data } = useQuery({
         queryKey: ['employee'],
         queryFn: fetchEmployee,
     });
@@ -63,7 +63,7 @@ const EditEmployeePage = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            return data;
+            return data.content;
         }
     });
 
@@ -98,11 +98,11 @@ const EditEmployeePage = () => {
             }}
             variant="outlined"
         >
-            <div>
-                <Typography level="h4" component="h1">
-                    <b>Çalışan Düzenleme</b>
+            <Box>
+                <Typography level="h4" component="h1" fontWeight="bold">
+                    Çalışan Düzenleme
                 </Typography>
-            </div>
+            </Box>
             <form onSubmit={handleSubmit}>
                 <FormControl>
                     <FormLabel>Ad</FormLabel>

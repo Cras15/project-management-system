@@ -13,6 +13,8 @@ import RolePage from './pages/RolePage'
 import PermissionPage from './pages/PermissionPage'
 import EditRole from './pages/EditRole'
 import EditPermission from './pages/EditPermission'
+import ViewProjectPage from './pages/ViewProjectPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 function App() {
   const token = useAuthStore((state) => state.token);
@@ -24,6 +26,7 @@ function App() {
           <Route index element={<HomePage />} />
           <Route path="project/:id" element={<EditProject />} />
           <Route path="project/create" element={<CreateProjectPage />} />
+          <Route path="project/view/:id" element={<ViewProjectPage />} />
           <Route path="employees" element={<EmployeesPage />} />
           <Route path="employee/:id" element={<EditEmployeePage />} />
           <Route path="employee/create" element={<CreateEmployeePage />} />
@@ -33,7 +36,7 @@ function App() {
           <Route path='role/edit' element={<EditRole />} />
           <Route path='permission/edit/:id' element={<EditPermission />} />
           <Route path='permission/edit' element={<EditPermission />} />
-          <Route path="*" element={<div>404 Not Found</div>} />
+          <Route path="*" element={<NotFoundPage/>} />
         </Route>
         : <>
           <Route index element={<LoginPage />} />

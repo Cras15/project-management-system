@@ -1,24 +1,28 @@
 import axios from 'axios';
-import CustomTable from '../components/CustomTable'
-import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/useAuthStore';
 import { useNotification } from '../contexts/NotificationContext';
 import { Box, Chip, Typography } from '@mui/joy';
+import { usePaginatedQuery } from '../hooks/usePaginatedQuery';
+import PaginatedTable from '../components/PaginatedTable';
+
+const fetchRoles = async ({ page, pageSize, token, searchTerm }) => {
+    const { data } = await axios.get(`http://localhost:8080/admin/role?page=${page}&size=${pageSize}&sort=name&search=${searchTerm}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return data;
+};
 
 const RolePage = () => {
     const token = useAuthStore((state) => state.token);
     const { addNotification } = useNotification();
-    const { data, isLoading, isError, error, refetch } = useQuery({
-        queryKey: ['roles'],
-        queryFn: async () => {
-            const response = await axios.get('http://localhost:8080/admin/role', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            return response.data;
-        },
-    });
+
+    const {
+        refetch,
+    } = usePaginatedQuery(
+        ['roles'],
+        ({ page, pageSize,searchTerm }) => fetchRoles({ page, pageSize, token,searchTerm }),
+    );
+
     const roleColumns = [
         {
             header: 'Rol Adı',
@@ -57,12 +61,16 @@ const RolePage = () => {
     };
 
     return (
-        <CustomTable
+        <PaginatedTable
+            queryKey={['roles']}
+            fetchFn={fetchRoles}
             columns={roleColumns}
-            data={data}
+            initialPageSize={5}
+            pageSizeOptions={[5, 10, 20]}
             editLink="/role/edit"
             handleDelete={handleDelete}
             renderActions={true}
+            renderSearch
             createLink="/role/edit"
             createText='Yeni Rol Ekle'
         />
